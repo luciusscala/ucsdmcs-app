@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct ucsdmcsApp: App {
+    @State private var dataService = DataService()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(dataService)
         }
     }
 }
