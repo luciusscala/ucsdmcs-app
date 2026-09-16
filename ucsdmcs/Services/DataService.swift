@@ -139,8 +139,9 @@ final class DataService {
     // MARK: - Events
 
     func fetchUpcomingEvents(seasonId: UUID) async {
-        isLoading = true
-        defer { isLoading = false }
+        let isInitialLoad = events.isEmpty
+        if isInitialLoad { isLoading = true }
+        defer { if isInitialLoad { isLoading = false } }
 
         do {
             let now = ISO8601DateFormatter().string(from: Date())

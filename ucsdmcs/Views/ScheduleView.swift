@@ -35,7 +35,7 @@ struct ScheduleView: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             Group {
-                if dataService.isLoading || !dataService.hasLoadedSchedule {
+                if !dataService.hasLoadedSchedule {
                     ProgressView("Loading schedule...")
                 } else if groupedEvents.isEmpty {
                     EmptyStateView(
