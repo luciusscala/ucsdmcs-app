@@ -5,6 +5,13 @@ struct EventDetailView: View {
     let rosterID: UUID
     @Environment(DataService.self) private var dataService
     @Environment(\.openURL) private var openURL
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage("isAdmin") private var isAdmin: String = ""
+    @State private var showEditSheet = false
+    @State private var showDeleteAlert = false
+    @State private var showMessageComposer = false
+
+    private var isAdminMode: Bool { isAdmin == "true" }
 
     private var event: Event? {
         dataService.events.first { $0.id == eventID }
@@ -37,6 +44,66 @@ struct EventDetailView: View {
         }
         .navigationTitle(event?.typeLabel ?? "Event")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if isAdminMode, let event {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        showMessageComposer = true
+                    } label: {
+                        Image(systemName: "paperplane")
+                    }
+                    Button {
+                        showEditSheet = true
+                    } label: {
+                        Image(systemName: "pencil")
+                    }
+                    Button(role: .destructive) {
+                        showDeleteAlert = true
+                    } label: {
+                        Image(systemName: "trash")
+                    }
+                }
+            }
+        }
+        .alert("Delete Event", isPresented: $showDeleteAlert) {
+            Button("Delete", role: .destructive) {
+                guard let event else { return }
+                Task {
+                    await dataService.deleteEvent(eventId: event.id, eventType: event.eventType)
+                    dismiss()
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Are you sure you want to delete this event? This cannot be undone.")
+        }
+        .sheet(isPresented: $showEditSheet) {
+            if let event {
+                if event.eventType == "practice" {
+                    let practice = dataService.practices[event.id]
+                    PracticeFormView(
+                        editingEventId: event.id,
+                        initialDate: event.eventDate,
+                        initialFieldId: practice?.fieldId,
+                        initialNotes: practice?.notes
+                    )
+                } else if event.eventType == "game" {
+                    let game = dataService.games[event.id]
+                    GameFormView(
+                        editingEventId: event.id,
+                        initialDate: event.eventDate,
+                        initialOpponentId: game?.opponentId,
+                        initialFieldId: game?.fieldId,
+                        initialIsHome: game?.isHome
+                    )
+                }
+            }
+        }
+        .sheet(isPresented: $showMessageComposer) {
+            if let event {
+                MessageComposerView(event: event, eventID: eventID)
+            }
+        }
         .task {
             await dataService.fetchAvailability(eventId: eventID)
         }
@@ -258,4 +325,5 @@ struct EventDetailView: View {
         default: return nil
         }
     }
+
 }

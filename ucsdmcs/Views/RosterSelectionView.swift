@@ -5,16 +5,8 @@ struct RosterSelectionView: View {
     @AppStorage("teamID") private var savedTeamID: String = ""
     @AppStorage("rosterID") private var savedRosterID: String = ""
 
-    private var groupedRoster: [(position: String, entries: [RosterEntry])] {
-        let grouped = Dictionary(grouping: dataService.roster) { $0.position }
-        let order = ["GK", "DEF", "MID", "FWD", "ATT"]
-        return grouped
-            .sorted { a, b in
-                let ai = order.firstIndex(of: a.key) ?? order.count
-                let bi = order.firstIndex(of: b.key) ?? order.count
-                return ai == bi ? a.key < b.key : ai < bi
-            }
-            .map { (position: $0.key, entries: $0.value) }
+    private var sortedRoster: [RosterEntry] {
+        dataService.roster.sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
     }
 
     var body: some View {
@@ -31,36 +23,18 @@ struct RosterSelectionView: View {
                 } else {
                     List {
                         Section {
-                            Text("Select your name from the roster")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                                .listRowBackground(Color.clear)
-                        }
-
-                        ForEach(groupedRoster, id: \.position) { group in
-                            Section(group.position) {
-                                ForEach(group.entries) { entry in
-                                    Button {
-                                        savedRosterID = entry.id.uuidString
-                                    } label: {
-                                        HStack {
-                                            if let num = entry.number {
-                                                Text("#\(num)")
-                                                    .font(.subheadline.monospaced().weight(.semibold))
-                                                    .foregroundStyle(.secondary)
-                                                    .frame(width: 36, alignment: .trailing)
-                                            }
-                                            Text(entry.displayName)
-                                                .font(.body)
-                                                .foregroundStyle(.primary)
-                                            Spacer()
-                                            Text(entry.playerClass)
-                                                .font(.caption)
-                                                .foregroundStyle(.tertiary)
-                                            Image(systemName: "chevron.right")
-                                                .font(.caption)
-                                                .foregroundStyle(.tertiary)
-                                        }
+                            ForEach(sortedRoster) { entry in
+                                Button {
+                                    savedRosterID = entry.id.uuidString
+                                } label: {
+                                    HStack {
+                                        Text(entry.displayName)
+                                            .font(.body)
+                                            .foregroundStyle(.primary)
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption)
+                                            .foregroundStyle(.tertiary)
                                     }
                                 }
                             }
@@ -76,7 +50,7 @@ struct RosterSelectionView: View {
                     }
                 }
             }
-            .navigationTitle("Roster")
+            .navigationTitle("Select Your Name")
             .overlay {
                 if let error = dataService.errorMessage {
                     VStack {
@@ -91,6 +65,7 @@ struct RosterSelectionView: View {
                 }
             }
             .task {
+                dataService.errorMessage = nil
                 await dataService.fetchCurrentSeason()
                 if let season = dataService.currentSeason {
                     await dataService.fetchRoster(seasonId: season.id)
