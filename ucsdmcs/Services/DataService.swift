@@ -63,6 +63,18 @@ final class DataService {
         }
     }
 
+    func updateHometown(personId: UUID, hometown: String) async {
+        do {
+            try await supabase
+                .from("people")
+                .update(["hometown": hometown])
+                .eq("id", value: personId.uuidString)
+                .execute()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
     func validateAdminCode(teamId: UUID, code: String) async -> Bool {
         do {
             print(teamId)

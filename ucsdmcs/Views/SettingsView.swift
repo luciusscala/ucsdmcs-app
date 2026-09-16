@@ -9,12 +9,70 @@ struct SettingsView: View {
     @State private var adminCode: String = ""
     @State private var adminError: String?
     @State private var isValidating = false
+    @State private var editingHometown: String = ""
+    @State private var hasPendingHometownChange = false
 
     private var isAdminMode: Bool { isAdmin == "true" }
+
+    private var currentRosterEntry: RosterEntry? {
+        guard let rosterUUID = UUID(uuidString: savedRosterID) else { return nil }
+        return dataService.roster.first { $0.id == rosterUUID }
+    }
+
+    private var currentPerson: Person? {
+        currentRosterEntry?.people
+    }
 
     var body: some View {
         NavigationStack {
             List {
+                // Profile section
+                if let entry = currentRosterEntry, let person = currentPerson {
+                    Section {
+                        HStack {
+                            Text("Name")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text(person.name)
+                                .foregroundStyle(.tertiary)
+                        }
+
+                        if let number = entry.number {
+                            HStack {
+                                Text("Number")
+                                    .foregroundStyle(.secondary)
+                                Spacer()
+                                Text("#\(number)")
+                                    .foregroundStyle(.tertiary)
+                            }
+                        }
+
+                        HStack {
+                            Text("Hometown")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            TextField("Add hometown", text: $editingHometown)
+                                .multilineTextAlignment(.trailing)
+                                .onChange(of: editingHometown) { _, _ in
+                                    hasPendingHometownChange = true
+                                }
+                        }
+
+                        if hasPendingHometownChange {
+                            Button("Save Changes") {
+                                Task { await saveProfileChanges(personId: person.id) }
+                            }
+                            .font(.body.weight(.medium))
+                        }
+                    } header: {
+                        Text("Profile")
+                    }
+                    .onAppear {
+                        editingHometown = person.hometown ?? ""
+                        hasPendingHometownChange = false
+                    }
+                }
+
                 // Admin section
                 Section {
                     if isAdminMode {
@@ -73,6 +131,17 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+        }
+    }
+
+    private func saveProfileChanges(personId: UUID) async {
+        if hasPendingHometownChange {
+            await dataService.updateHometown(personId: personId, hometown: editingHometown)
+        }
+        hasPendingHometownChange = false
+
+        if let season = dataService.currentSeason {
+            await dataService.fetchRoster(seasonId: season.id)
         }
     }
 
