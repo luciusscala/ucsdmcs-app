@@ -4,6 +4,7 @@ struct RosterSelectionView: View {
     @Environment(DataService.self) private var dataService
     @AppStorage("teamID") private var savedTeamID: String = ""
     @AppStorage("rosterID") private var savedRosterID: String = ""
+    @State private var pendingEntry: RosterEntry?
 
     private var sortedRoster: [RosterEntry] {
         dataService.roster.sorted { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
@@ -25,12 +26,12 @@ struct RosterSelectionView: View {
                         Section {
                             ForEach(sortedRoster) { entry in
                                 Button {
-                                    savedRosterID = entry.id.uuidString
+                                    pendingEntry = entry
                                 } label: {
                                     HStack {
                                         Text(entry.displayName)
                                             .font(.body)
-                                            .foregroundStyle(.primary)
+                                            .foregroundStyle(.white)
                                         Spacer()
                                         Image(systemName: "chevron.right")
                                             .font(.caption)
@@ -63,6 +64,22 @@ struct RosterSelectionView: View {
                             .padding()
                     }
                 }
+            }
+            .alert("Is this you?", isPresented: Binding(
+                get: { pendingEntry != nil },
+                set: { if !$0 { pendingEntry = nil } }
+            )) {
+                Button("Yes, that's me") {
+                    if let entry = pendingEntry {
+                        savedRosterID = entry.id.uuidString
+                    }
+                    pendingEntry = nil
+                }
+                Button("Cancel", role: .cancel) {
+                    pendingEntry = nil
+                }
+            } message: {
+                Text("You selected \(pendingEntry?.displayName ?? ""). Make sure this is your name.")
             }
             .task {
                 dataService.errorMessage = nil

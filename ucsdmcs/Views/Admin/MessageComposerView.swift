@@ -78,7 +78,7 @@ struct MessageComposerView: View {
                         } label: {
                             HStack {
                                 Image(systemName: selectedRosterIds.contains(entry.id) ? "checkmark.circle.fill" : "circle")
-                                    .foregroundStyle(selectedRosterIds.contains(entry.id) ? .blue : .secondary)
+                                    .foregroundStyle(selectedRosterIds.contains(entry.id) ? AppTheme.buttonBlue : .secondary)
 
                                 if let num = entry.number {
                                     Text("#\(num)")

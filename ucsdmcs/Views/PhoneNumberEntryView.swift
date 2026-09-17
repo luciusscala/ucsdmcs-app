@@ -43,11 +43,19 @@ struct PhoneNumberEntryView: View {
                         }
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
+                    .padding(.vertical, 10)
                 }
                 .buttonStyle(.borderedProminent)
                 .padding(.horizontal, 40)
                 .disabled(phoneNumber.count < 10 || isLoading)
+
+                Button {
+                    phoneEntered = "true"
+                } label: {
+                    Text("Skip")
+                        .font(.subheadline)
+                }
+                .foregroundStyle(.secondary)
 
                 Spacer()
                 Spacer()

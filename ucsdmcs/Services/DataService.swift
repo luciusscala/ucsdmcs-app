@@ -314,6 +314,29 @@ final class DataService {
         }
     }
 
+    func deleteAvailability(eventId: UUID, rosterId: UUID) async {
+        // Optimistic update: remove from local state
+        if var existing = availabilityByEvent[eventId] {
+            existing.removeAll { $0.rosterId == rosterId }
+            availabilityByEvent[eventId] = existing
+        }
+
+        // Sync with server
+        do {
+            try await supabase
+                .from("availability")
+                .delete()
+                .eq("event_id", value: eventId.uuidString)
+                .eq("roster_id", value: rosterId.uuidString)
+                .execute()
+
+            await fetchAvailability(eventId: eventId)
+        } catch {
+            await fetchAvailability(eventId: eventId)
+            errorMessage = error.localizedDescription
+        }
+    }
+
     // MARK: - Composite Helpers
 
     func eventsWithAvailability(currentRosterId: UUID) -> [EventWithAvailability] {

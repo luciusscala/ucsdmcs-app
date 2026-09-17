@@ -4,6 +4,7 @@ struct EventRow: View {
     let item: EventWithAvailability
     var isSelecting: Bool = false
     var isSelected: Bool = false
+    var onQuickRespond: ((AvailabilityStatus) -> Void)?
 
     var body: some View {
         HStack(spacing: 10) {
@@ -63,6 +64,25 @@ struct EventRow: View {
                 Image(systemName: status.icon)
                     .font(.title3)
                     .foregroundStyle(status.color)
+            } else if let onQuickRespond {
+                HStack(spacing: 8) {
+                    Button {
+                        onQuickRespond(.yes)
+                    } label: {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.title3)
+                            .foregroundStyle(AvailabilityStatus.yes.color)
+                    }
+                    .buttonStyle(.plain)
+                    Button {
+                        onQuickRespond(.no)
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title3)
+                            .foregroundStyle(AvailabilityStatus.no.color)
+                    }
+                    .buttonStyle(.plain)
+                }
             } else {
                 Image(systemName: "circle.dashed")
                     .font(.title3)
@@ -74,8 +94,8 @@ struct EventRow: View {
 
     private var typeColor: Color {
         switch item.event.eventType {
-        case "game": return .orange
-        case "practice": return .blue
+        case "game": return AppTheme.gameAccent
+        case "practice": return AppTheme.practiceAccent
         case "social": return .purple
         case "tournament": return .yellow
         default: return .gray

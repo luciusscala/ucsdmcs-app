@@ -4,8 +4,9 @@ enum AppTheme {
     static let availabilityGreen = Color("availabilityGreen")
     static let availabilityRed = Color("availabilityRed")
     static let availabilityAmber = Color("availabilityAmber")
-    static let practiceAccent = Color.blue
-    static let gameAccent = Color.orange
+    static let buttonBlue = Color(red: 0/255, green: 98/255, blue: 155/255)
+    static let practiceAccent = Color(red: 0/255, green: 98/255, blue: 155/255)
+    static let gameAccent = Color(red: 198/255, green: 146/255, blue: 20/255)
 
     static let spacingXS: CGFloat = 4
     static let spacingSM: CGFloat = 8

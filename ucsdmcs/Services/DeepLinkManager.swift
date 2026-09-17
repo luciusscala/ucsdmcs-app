@@ -6,6 +6,7 @@ final class DeepLinkManager {
 
     func handle(url: URL) {
         // Expected format: ucsdmcs://event/{eventID}
+        // NOT DEPLOYED YET
         guard url.scheme == "ucsdmcs",
               url.host == "event",
               let eventIdString = url.pathComponents.dropFirst().first,

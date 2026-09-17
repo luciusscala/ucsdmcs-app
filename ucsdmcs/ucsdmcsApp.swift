@@ -17,6 +17,7 @@ struct ucsdmcsApp: App {
             ContentView()
                 .environment(dataService)
                 .environment(deepLinkManager)
+                .tint(AppTheme.buttonBlue)
                 .onOpenURL { url in
                     deepLinkManager.handle(url: url)
                 }

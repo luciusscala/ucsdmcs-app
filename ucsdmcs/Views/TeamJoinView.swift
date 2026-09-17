@@ -42,7 +42,7 @@ struct TeamSelectionView: View {
                             }
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
+                        .padding(.vertical, 10)
                     }
                     .buttonStyle(.borderedProminent)
                     .padding(.horizontal, 40)

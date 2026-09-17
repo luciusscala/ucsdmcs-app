@@ -2,7 +2,8 @@ import Foundation
 
 enum MessageService {
     // Configure this to your FastAPI backend URL
-    static let baseURL = "https://your-api.railway.app"
+    // NOT DEPLOYED YET
+    static let baseURL = "PLACEHOLDER"
 
     static func sendSMS(phones: [String], message: String) async throws {
         guard let url = URL(string: "\(baseURL)/send-sms") else {

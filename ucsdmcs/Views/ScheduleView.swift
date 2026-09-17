@@ -65,6 +65,7 @@ struct ScheduleView: View {
                         Button("Select") {
                             isSelecting = true
                         }
+                        .foregroundStyle(.white)
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -171,7 +172,15 @@ struct ScheduleView: View {
             .buttonStyle(.plain)
         } else {
             NavigationLink(value: item.event.id) {
-                EventRow(item: item)
+                EventRow(item: item) { status in
+                    Task {
+                        await dataService.setAvailability(
+                            eventId: item.event.id,
+                            rosterId: rosterID,
+                            status: status
+                        )
+                    }
+                }
             }
         }
     }

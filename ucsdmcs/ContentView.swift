@@ -59,6 +59,7 @@ struct MainTabView: View {
                 SettingsView()
             }
         }
+        .tint(.white)
         .tabBarMinimizeBehavior(.onScrollDown)
     }
 }

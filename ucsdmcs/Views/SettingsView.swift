@@ -130,6 +130,7 @@ struct SettingsView: View {
                     }
                 }
             }
+            .tint(AppTheme.practiceAccent)
             .navigationTitle("Settings")
         }
     }

@@ -166,7 +166,7 @@ struct EventDetailView: View {
                                 Image(systemName: "arrow.up.right.square")
                                     .font(.caption)
                             }
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(AppTheme.buttonBlue)
                         }
                     } else {
                         Text(locationName)
@@ -293,8 +293,8 @@ struct EventDetailView: View {
 
     private func typeColor(for eventType: String) -> Color {
         switch eventType {
-        case "game": return .orange
-        case "practice": return .blue
+        case "game": return AppTheme.gameAccent
+        case "practice": return AppTheme.practiceAccent
         case "social": return .purple
         case "tournament": return .yellow
         default: return .gray
