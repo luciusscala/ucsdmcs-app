@@ -20,6 +20,8 @@ final class DataService {
     var hasLoadedSchedule = false
     var errorMessage: String?
 
+
+
     private var supabase: SupabaseClient { SupabaseConfig.client }
 
     // MARK: - Teams
@@ -293,7 +295,7 @@ final class DataService {
             )]
         }
 
-        // Sync with server
+        // Fire and forget — local state is the source of truth
         do {
             let payload: [String: String] = [
                 "event_id": eventId.uuidString,
@@ -304,12 +306,7 @@ final class DataService {
                 .from("availability")
                 .upsert(payload, onConflict: "event_id,roster_id")
                 .execute()
-
-            // Refresh to get server-assigned ID and updated_at
-            await fetchAvailability(eventId: eventId)
         } catch {
-            // Revert on failure
-            await fetchAvailability(eventId: eventId)
             errorMessage = error.localizedDescription
         }
     }
