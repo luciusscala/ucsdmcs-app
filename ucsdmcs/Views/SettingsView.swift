@@ -4,15 +4,13 @@ struct SettingsView: View {
     @AppStorage("teamID") private var savedTeamID: String = ""
     @AppStorage("rosterID") private var savedRosterID: String = ""
     @AppStorage("phoneEntered") private var phoneEntered: String = ""
-    @AppStorage("isAdmin") private var isAdmin: String = ""
     @Environment(DataService.self) private var dataService
+    @Environment(CaptainSession.self) private var captain
     @State private var adminCode: String = ""
     @State private var adminError: String?
     @State private var isValidating = false
     @State private var editingHometown: String = ""
     @State private var hasPendingHometownChange = false
-
-    private var isAdminMode: Bool { isAdmin == "true" }
 
     private var currentRosterEntry: RosterEntry? {
         guard let rosterUUID = UUID(uuidString: savedRosterID) else { return nil }
@@ -75,7 +73,7 @@ struct SettingsView: View {
 
                 // Admin section
                 Section {
-                    if isAdminMode {
+                    if captain.isCaptain {
                         HStack {
                             Image(systemName: "checkmark.shield.fill")
                                 .foregroundStyle(.green)
@@ -84,7 +82,7 @@ struct SettingsView: View {
                             Spacer()
                         }
                         Button("Disable Admin Mode") {
-                            isAdmin = ""
+                            captain.lock()
                         }
                     } else {
                         SecureField("Admin Code", text: $adminCode)
@@ -119,7 +117,7 @@ struct SettingsView: View {
                         savedTeamID = ""
                         savedRosterID = ""
                         phoneEntered = ""
-                        isAdmin = ""
+                        captain.lock()
                     } label: {
                         HStack {
                             Text("Leave Team")
@@ -151,18 +149,15 @@ struct SettingsView: View {
         adminError = nil
         defer { isValidating = false }
 
-        guard let teamUUID = UUID(uuidString: savedTeamID) else {
-            adminError = "No team selected."
-            return
-        }
-
-        let code = adminCode.trimmingCharacters(in: .whitespaces)
-        let valid = await dataService.validateAdminCode(teamId: teamUUID, code: code)
-        if valid {
-            isAdmin = "true"
+        do {
+            try await captain.unlock(
+                teamId: savedTeamID,
+                rosterId: savedRosterID,
+                adminCode: adminCode.trimmingCharacters(in: .whitespaces)
+            )
             adminCode = ""
-        } else {
-            adminError = "Invalid admin code."
+        } catch {
+            adminError = error.localizedDescription
         }
     }
 }

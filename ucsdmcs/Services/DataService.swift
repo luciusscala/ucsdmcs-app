@@ -77,23 +77,6 @@ final class DataService {
         }
     }
 
-    func validateAdminCode(teamId: UUID, code: String) async -> Bool {
-        do {
-            print(teamId)
-            let results: [Team] = try await supabase
-                .from("teams")
-                .select("*")
-                .eq("id", value: teamId.uuidString)
-                .execute()
-                .value
-            
-            return results.first?.adminCode == code
-        } catch {
-            errorMessage = error.localizedDescription
-            return false
-        }
-    }
-
     // MARK: - Fields
 
     var fields: [Field] = []

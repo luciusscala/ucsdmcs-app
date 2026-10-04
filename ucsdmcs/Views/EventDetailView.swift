@@ -6,12 +6,10 @@ struct EventDetailView: View {
     @Environment(DataService.self) private var dataService
     @Environment(\.openURL) private var openURL
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("isAdmin") private var isAdmin: String = ""
+    @Environment(CaptainSession.self) private var captain
     @State private var showEditSheet = false
     @State private var showDeleteAlert = false
     @State private var showMessageComposer = false
-
-    private var isAdminMode: Bool { isAdmin == "true" }
 
     private var event: Event? {
         dataService.events.first { $0.id == eventID }
@@ -45,7 +43,7 @@ struct EventDetailView: View {
         .navigationTitle(event?.typeLabel ?? "Event")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if isAdminMode, let event {
+            if captain.isCaptain, let event {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button {
                         showMessageComposer = true

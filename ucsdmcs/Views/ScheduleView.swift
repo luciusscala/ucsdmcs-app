@@ -4,7 +4,7 @@ struct ScheduleView: View {
     let rosterID: UUID
     @Environment(DataService.self) private var dataService
     @Environment(DeepLinkManager.self) private var deepLinkManager
-    @AppStorage("isAdmin") private var isAdmin: String = ""
+    @Environment(CaptainSession.self) private var captain
     @State private var showPracticeForm = false
     @State private var showRepeatingForm = false
     @State private var showGameForm = false
@@ -15,8 +15,6 @@ struct ScheduleView: View {
     @State private var selectedEventIDs: Set<UUID> = []
     @State private var showBulkDeleteAlert = false
     @State private var isBulkActionLoading = false
-
-    private var isAdminMode: Bool { isAdmin == "true" }
 
     private var allEventIDs: Set<UUID> {
         Set(groupedEvents.flatMap { $0.events.map(\.event.id) })
@@ -74,7 +72,7 @@ struct ScheduleView: View {
                             exitSelectionMode()
                         }
                         .fontWeight(.semibold)
-                    } else if isAdminMode {
+                    } else if captain.isCaptain {
                         Menu {
                             Button {
                                 showPracticeForm = true
@@ -122,7 +120,9 @@ struct ScheduleView: View {
                 guard !dataService.hasLoadedSchedule else { return }
                 await loadData()
             }
-            .onChange(of: deepLinkManager.pendingEventID) { _, eventID in
+            // `initial` also catches a link that arrived before this view
+            // existed: one that launched the app, or came in mid-onboarding.
+            .onChange(of: deepLinkManager.pendingEventID, initial: true) { _, eventID in
                 if let eventID {
                     navigationPath.append(eventID)
                     deepLinkManager.pendingEventID = nil
@@ -211,7 +211,7 @@ struct ScheduleView: View {
                     .contentShape(Rectangle())
             }
 
-            if isAdminMode {
+            if captain.isCaptain {
                 Button {
                     showBulkDeleteAlert = true
                 } label: {

@@ -11,12 +11,14 @@ import SwiftUI
 struct ucsdmcsApp: App {
     @State private var dataService = DataService()
     @State private var deepLinkManager = DeepLinkManager()
+    @State private var captain = CaptainSession()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(dataService)
                 .environment(deepLinkManager)
+                .environment(captain)
                 .tint(AppTheme.buttonBlue)
                 .onOpenURL { url in
                     deepLinkManager.handle(url: url)

@@ -4,6 +4,7 @@ struct MessageComposerView: View {
     let event: Event
     let eventID: UUID
     @Environment(DataService.self) private var dataService
+    @Environment(CaptainSession.self) private var captain
     @Environment(\.dismiss) private var dismiss
     @State private var selectedRosterIds: Set<UUID> = []
     @State private var messageText: String = ""
@@ -11,7 +12,7 @@ struct MessageComposerView: View {
     @State private var resultAlert: ResultAlert?
 
     private enum ResultAlert: Identifiable {
-        case success(Int)
+        case success(ReminderResult)
         case error(String)
         var id: String {
             switch self {
@@ -27,11 +28,11 @@ struct MessageComposerView: View {
 
     private var selectedCount: Int { selectedRosterIds.count }
 
-    private var selectedPhones: [String] {
-        dataService.roster
-            .filter { selectedRosterIds.contains($0.id) }
-            .compactMap { $0.people?.phone }
-            .filter { !$0.isEmpty }
+    /// Selected players who have a number on file, for the Send button's count.
+    private var reachableCount: Int {
+        dataService.roster.filter {
+            selectedRosterIds.contains($0.id) && !($0.people?.phone ?? "").isEmpty
+        }.count
     }
 
     var body: some View {
@@ -121,16 +122,16 @@ struct MessageComposerView: View {
                         if isSending {
                             ProgressView()
                         } else {
-                            Text("Send (\(selectedPhones.count))")
+                            Text("Send (\(reachableCount))")
                         }
                     }
-                    .disabled(selectedPhones.isEmpty || isSending)
+                    .disabled(reachableCount == 0 || isSending)
                 }
             }
             .alert(item: $resultAlert) { alert in
                 switch alert {
-                case .success(let count):
-                    Alert(title: Text("Sent"), message: Text("Reminder sent to \(count) players."), dismissButton: .default(Text("OK")) { dismiss() })
+                case .success(let result):
+                    Alert(title: Text("Sent"), message: Text(summary(of: result)), dismissButton: .default(Text("OK")) { dismiss() })
                 case .error(let msg):
                     Alert(title: Text("Error"), message: Text(msg), dismissButton: .default(Text("OK")))
                 }
@@ -153,19 +154,23 @@ struct MessageComposerView: View {
 
         let dateStr = event.eventDate.formatted(.dateTime.weekday(.wide).month().day().hour().minute())
 
-        return "Reminder: \(title) on \(dateStr). Please respond!\nucsdmcs://event/\(eventID.uuidString)"
+        return "Reminder: \(title) on \(dateStr). Please respond!\n\(DeepLinkManager.eventURL(eventID))"
     }
 
     private func send() async {
         isSending = true
         defer { isSending = false }
 
-        let phones = selectedPhones
         do {
-            try await MessageService.sendSMS(phones: phones, message: messageText)
-            resultAlert = .success(phones.count)
+            let result = try await captain.sendReminder(to: selectedRosterIds, message: messageText)
+            resultAlert = .success(result)
         } catch {
             resultAlert = .error(error.localizedDescription)
         }
+    }
+
+    private func summary(of result: ReminderResult) -> String {
+        let sent = "Reminder sent to \(result.sent) \(result.sent == 1 ? "player" : "players")."
+        return result.failed > 0 ? "\(sent) \(result.failed) couldn't be reached." : sent
     }
 }
