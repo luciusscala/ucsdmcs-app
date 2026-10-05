@@ -10,7 +10,8 @@ struct SettingsView: View {
     @State private var adminError: String?
     @State private var isValidating = false
     @State private var editingHometown: String = ""
-    @State private var hasPendingHometownChange = false
+    @FocusState private var isHometownFocused: Bool
+
 
     private var currentRosterEntry: RosterEntry? {
         guard let rosterUUID = UUID(uuidString: savedRosterID) else { return nil }
@@ -51,12 +52,10 @@ struct SettingsView: View {
                             Spacer()
                             TextField("Add hometown", text: $editingHometown)
                                 .multilineTextAlignment(.trailing)
-                                .onChange(of: editingHometown) { _, _ in
-                                    hasPendingHometownChange = true
-                                }
+                                .focused($isHometownFocused)
                         }
 
-                        if hasPendingHometownChange {
+                        if editingHometown != (person.hometown ?? "") {
                             Button("Save Changes") {
                                 Task { await saveProfileChanges(personId: person.id) }
                             }
@@ -67,7 +66,6 @@ struct SettingsView: View {
                     }
                     .onAppear {
                         editingHometown = person.hometown ?? ""
-                        hasPendingHometownChange = false
                     }
                 }
 
@@ -129,15 +127,13 @@ struct SettingsView: View {
                 }
             }
             .tint(AppTheme.practiceAccent)
+            .scrollDismissesKeyboard(.immediately)
             .navigationTitle("Settings")
         }
     }
 
     private func saveProfileChanges(personId: UUID) async {
-        if hasPendingHometownChange {
-            await dataService.updateHometown(personId: personId, hometown: editingHometown)
-        }
-        hasPendingHometownChange = false
+        await dataService.updateHometown(personId: personId, hometown: editingHometown)
 
         if let season = dataService.currentSeason {
             await dataService.fetchRoster(seasonId: season.id)

@@ -59,19 +59,6 @@ struct ScheduleView: View {
                                 selectedEventIDs = allEventIDs
                             }
                         }
-                    } else {
-                        Button("Select") {
-                            isSelecting = true
-                        }
-                        .foregroundStyle(.white)
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    if isSelecting {
-                        Button("Done") {
-                            exitSelectionMode()
-                        }
-                        .fontWeight(.semibold)
                     } else if captain.isCaptain {
                         Menu {
                             Button {
@@ -92,6 +79,19 @@ struct ScheduleView: View {
                         } label: {
                             Image(systemName: "plus")
                         }
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    if isSelecting {
+                        Button("Done") {
+                            exitSelectionMode()
+                        }
+                        .fontWeight(.semibold)
+                    } else {
+                        Button("Select") {
+                            isSelecting = true
+                        }
+                        .foregroundStyle(.white)
                     }
                 }
             }
