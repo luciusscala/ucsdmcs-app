@@ -20,6 +20,7 @@ struct ucsdmcsApp: App {
                 .environment(deepLinkManager)
                 .environment(captain)
                 .tint(AppTheme.buttonBlue)
+                .preferredColorScheme(.dark)
                 .onOpenURL { url in
                     deepLinkManager.handle(url: url)
                 }
