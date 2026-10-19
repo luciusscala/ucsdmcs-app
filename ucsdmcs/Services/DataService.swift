@@ -16,6 +16,11 @@ final class DataService {
     var socialEvents: [UUID: SocialEvent] = [:]
     var tournaments: [UUID: Tournament] = [:]
 
+    // Captain dashboard
+    var allSeasonEvents: [Event] = []
+    var allSeasonAvailability: [UUID: [Availability]] = [:]
+    var hasLoadedDashboard = false
+
     var isLoading = false
     var hasLoadedSchedule = false
     var errorMessage: String?
@@ -574,5 +579,87 @@ final class DataService {
                 await deleteEvent(eventId: eventId, eventType: event.eventType)
             }
         }
+    }
+
+    // MARK: - Captain Dashboard
+
+    func fetchAllSeasonEvents(seasonId: UUID) async {
+        do {
+            // Only past events (up to end of today) — future events
+            // shouldn't count against a player's response rate.
+            let endOfToday = Calendar.current.startOfDay(for: Date()).addingTimeInterval(86400)
+            let cutoff = ISO8601DateFormatter().string(from: endOfToday)
+
+            allSeasonEvents = try await supabase
+                .from("events")
+                .select()
+                .eq("season_id", value: seasonId.uuidString)
+                .lte("event_date", value: cutoff)
+                .order("event_date")
+                .execute()
+                .value
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func fetchAllSeasonAvailability() async {
+        await withTaskGroup(of: (UUID, [Availability]).self) { group in
+            for event in allSeasonEvents {
+                group.addTask {
+                    do {
+                        let results: [Availability] = try await self.supabase
+                            .from("availability")
+                            .select("*, roster(*, people(*))")
+                            .eq("event_id", value: event.id.uuidString)
+                            .execute()
+                            .value
+                        return (event.id, results)
+                    } catch {
+                        return (event.id, [])
+                    }
+                }
+            }
+            for await (eventId, results) in group {
+                allSeasonAvailability[eventId] = results
+            }
+        }
+    }
+
+    func filteredSeasonEvents(since: Date? = nil) -> [Event] {
+        guard let since else { return allSeasonEvents }
+        return allSeasonEvents.filter { $0.eventDate >= since }
+    }
+
+    func playerAttendanceStats(since: Date? = nil) -> [PlayerAttendanceStats] {
+        let filtered = filteredSeasonEvents(since: since)
+        let totalEvents = filtered.count
+
+        return roster.map { entry in
+            var goingCount = 0
+            var notGoingCount = 0
+            var noResponseCount = 0
+
+            for event in filtered {
+                let responses = allSeasonAvailability[event.id] ?? []
+                if let response = responses.first(where: { $0.rosterId == entry.id }) {
+                    switch response.status {
+                    case .yes: goingCount += 1
+                    case .no: notGoingCount += 1
+                    }
+                } else {
+                    noResponseCount += 1
+                }
+            }
+
+            return PlayerAttendanceStats(
+                rosterEntry: entry,
+                totalEvents: totalEvents,
+                goingCount: goingCount,
+                notGoingCount: notGoingCount,
+                noResponseCount: noResponseCount
+            )
+        }
+        .sorted { $0.issueScore > $1.issueScore }
     }
 }

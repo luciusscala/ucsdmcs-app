@@ -28,13 +28,6 @@ struct MessageComposerView: View {
 
     private var selectedCount: Int { selectedRosterIds.count }
 
-    /// Selected players who have a number on file, for the Send button's count.
-    private var reachableCount: Int {
-        dataService.roster.filter {
-            selectedRosterIds.contains($0.id) && !($0.people?.phone ?? "").isEmpty
-        }.count
-    }
-
     var body: some View {
         NavigationStack {
             List {
@@ -122,10 +115,10 @@ struct MessageComposerView: View {
                         if isSending {
                             ProgressView()
                         } else {
-                            Text("Send (\(reachableCount))")
+                            Text("Send (\(selectedCount))")
                         }
                     }
-                    .disabled(reachableCount == 0 || isSending)
+                    .disabled(selectedCount == 0 || messageText.isEmpty || isSending)
                 }
             }
             .alert(item: $resultAlert) { alert in
@@ -154,7 +147,7 @@ struct MessageComposerView: View {
 
         let dateStr = event.eventDate.formatted(.dateTime.weekday(.wide).month().day().hour().minute())
 
-        return "Reminder: \(title) on \(dateStr). Please respond!\n\(DeepLinkManager.eventURL(eventID))"
+        return "Reminder: \(title) on \(dateStr). Please respond!\n\nClick here to view:\n\(DeepLinkManager.eventURL(eventID))"
     }
 
     private func send() async {

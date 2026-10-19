@@ -3,7 +3,10 @@ import Foundation
 /// The website's JSON endpoints under `/api`: the parts of the app that need
 /// a server rather than Supabase alone, such as captain unlock and SMS reminders.
 enum APIClient {
-    static let baseURL = URL(string: "https://ucsdmcs.com/api")!
+    /// The canonical host. The apex 308-redirects here, and URLSession drops
+    /// the `Authorization` header on a cross-host redirect, so captain-only
+    /// requests sent to the apex arrive without their token.
+    static let baseURL = URL(string: "https://www.ucsdmcs.com/api")!
 
     /// Carries the server's own `{ "error": "..." }` message to the UI.
     struct ServerError: LocalizedError {

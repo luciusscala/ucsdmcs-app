@@ -32,13 +32,27 @@ final class CaptainSession {
     /// Texts `message` to the chosen players. The server looks up their
     /// numbers, so none leave the database.
     func sendReminder(to rosterIds: Set<UUID>, message: String) async throws -> ReminderResult {
+        guard let token else {
+            throw APIClient.ServerError(errorDescription: "Admin mode expired. Please re-unlock in Settings.")
+        }
+
         struct Request: Encodable { let rosterIds: [UUID], message: String }
 
-        return try await APIClient.post(
-            "reminders",
-            body: Request(rosterIds: Array(rosterIds), message: message),
-            token: token
-        )
+        do {
+            return try await APIClient.post(
+                "reminders",
+                body: Request(rosterIds: Array(rosterIds), message: message),
+                token: token
+            )
+        } catch let error as APIClient.ServerError {
+            // If the server says the token is invalid, clear it so the user
+            // sees they need to re-unlock rather than silently failing.
+            let msg = (error.errorDescription ?? "").lowercased()
+            if msg.contains("admin") || msg.contains("unauthorized") || msg.contains("token") {
+                lock()
+            }
+            throw error
+        }
     }
 }
 

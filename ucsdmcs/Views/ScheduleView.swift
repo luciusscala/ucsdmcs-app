@@ -49,6 +49,11 @@ struct ScheduleView: View {
             .navigationDestination(for: UUID.self) { eventID in
                 EventDetailView(eventID: eventID, rosterID: rosterID)
             }
+            .navigationDestination(for: String.self) { route in
+                if route == "dashboard" {
+                    CaptainDashboardView()
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     if isSelecting {
@@ -60,24 +65,29 @@ struct ScheduleView: View {
                             }
                         }
                     } else if captain.isCaptain {
-                        Menu {
-                            Button {
-                                showPracticeForm = true
+                        HStack(spacing: 4) {
+                            Menu {
+                                Button {
+                                    showPracticeForm = true
+                                } label: {
+                                    Label("Add Practice", systemImage: "figure.run")
+                                }
+                                Button {
+                                    showRepeatingForm = true
+                                } label: {
+                                    Label("Add Repeating Practices", systemImage: "repeat")
+                                }
+                                Button {
+                                    showGameForm = true
+                                } label: {
+                                    Label("Add Game", systemImage: "sportscourt")
+                                }
                             } label: {
-                                Label("Add Practice", systemImage: "figure.run")
+                                Image(systemName: "plus")
                             }
-                            Button {
-                                showRepeatingForm = true
-                            } label: {
-                                Label("Add Repeating Practices", systemImage: "repeat")
+                            NavigationLink(value: "dashboard") {
+                                Image(systemName: "chart.bar")
                             }
-                            Button {
-                                showGameForm = true
-                            } label: {
-                                Label("Add Game", systemImage: "sportscourt")
-                            }
-                        } label: {
-                            Image(systemName: "plus")
                         }
                     }
                 }
