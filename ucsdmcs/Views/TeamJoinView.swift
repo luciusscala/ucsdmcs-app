@@ -23,11 +23,12 @@ struct TeamSelectionView: View {
 
                 VStack(spacing: 16) {
                     TextField("Team Code", text: $teamCode)
-                        .textFieldStyle(.roundedBorder)
                         .textInputAutocapitalization(.characters)
                         .autocorrectionDisabled()
                         .font(.title3.monospaced())
                         .multilineTextAlignment(.center)
+                        .padding(12)
+                        .background(Color(.systemGray5), in: .rect(cornerRadius: 10))
                         .padding(.horizontal, 40)
 
                     Button {

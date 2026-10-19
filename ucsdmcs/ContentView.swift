@@ -25,6 +25,11 @@ struct ContentView: View {
                             await dataService.fetchRoster(seasonId: season.id)
                         }
                     }
+                    // Skip phone entry if the person already has one on file
+                    if let entry = dataService.roster.first(where: { $0.id == rosterUUID }),
+                       let phone = entry.people?.phone, !phone.isEmpty {
+                        phoneEntered = "true"
+                    }
                 }
             } else if let rosterUUID = UUID(uuidString: savedRosterID) {
                 MainTabView(rosterID: rosterUUID)
@@ -52,14 +57,23 @@ struct MainTabView: View {
 
     var body: some View {
         TabView {
-            Tab("Schedule", systemImage: "calendar") {
-                ScheduleView(rosterID: rosterID)
-            }
-            Tab("Settings", systemImage: "gearshape") {
-                SettingsView()
-            }
+            ScheduleView(rosterID: rosterID)
+                .tabItem { Label("Schedule", systemImage: "calendar") }
+            SettingsView()
+                .tabItem { Label("Settings", systemImage: "gearshape") }
         }
         .tint(.white)
-        .tabBarMinimizeBehavior(.onScrollDown)
+        .modifier(TabBarMinimizeModifier())
+    }
+}
+
+/// Applies `.tabBarMinimizeBehavior` on iOS 26+, no-op on older versions.
+private struct TabBarMinimizeModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26, *) {
+            content.tabBarMinimizeBehavior(.onScrollDown)
+        } else {
+            content
+        }
     }
 }

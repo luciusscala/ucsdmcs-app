@@ -10,6 +10,7 @@ struct SettingsView: View {
     @State private var adminError: String?
     @State private var isValidating = false
     @State private var editingHometown: String = ""
+    @State private var editingPhone: String = ""
     @FocusState private var isHometownFocused: Bool
 
 
@@ -47,6 +48,18 @@ struct SettingsView: View {
                         }
 
                         HStack {
+                            Text("Phone")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            TextField("Phone number", text: $editingPhone)
+                                .keyboardType(.numberPad)
+                                .multilineTextAlignment(.trailing)
+                                .onChange(of: editingPhone) { _, newValue in
+                                    editingPhone = newValue.filter { $0.isNumber }
+                                }
+                        }
+
+                        HStack {
                             Text("Hometown")
                                 .foregroundStyle(.secondary)
                             Spacer()
@@ -55,7 +68,7 @@ struct SettingsView: View {
                                 .focused($isHometownFocused)
                         }
 
-                        if editingHometown != (person.hometown ?? "") {
+                        if editingHometown != (person.hometown ?? "") || editingPhone != (person.phone ?? "") {
                             Button("Save Changes") {
                                 Task { await saveProfileChanges(personId: person.id) }
                             }
@@ -66,6 +79,7 @@ struct SettingsView: View {
                     }
                     .onAppear {
                         editingHometown = person.hometown ?? ""
+                        editingPhone = person.phone ?? ""
                     }
                 }
 
@@ -133,7 +147,12 @@ struct SettingsView: View {
     }
 
     private func saveProfileChanges(personId: UUID) async {
-        await dataService.updateHometown(personId: personId, hometown: editingHometown)
+        if editingPhone != (currentPerson?.phone ?? "") {
+            await dataService.updatePhone(personId: personId, phone: editingPhone)
+        }
+        if editingHometown != (currentPerson?.hometown ?? "") {
+            await dataService.updateHometown(personId: personId, hometown: editingHometown)
+        }
 
         if let season = dataService.currentSeason {
             await dataService.fetchRoster(seasonId: season.id)

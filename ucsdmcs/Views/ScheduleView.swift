@@ -130,10 +130,16 @@ struct ScheduleView: View {
                 guard !dataService.hasLoadedSchedule else { return }
                 await loadData()
             }
-            // `initial` also catches a link that arrived before this view
-            // existed: one that launched the app, or came in mid-onboarding.
-            .onChange(of: deepLinkManager.pendingEventID, initial: true) { _, eventID in
-                if let eventID {
+            // Wait for data before navigating to a deep-linked event,
+            // otherwise the detail view shows incomplete/missing info.
+            .onChange(of: deepLinkManager.pendingEventID) { _, eventID in
+                if let eventID, dataService.hasLoadedSchedule {
+                    navigationPath.append(eventID)
+                    deepLinkManager.pendingEventID = nil
+                }
+            }
+            .onChange(of: dataService.hasLoadedSchedule) { _, loaded in
+                if loaded, let eventID = deepLinkManager.pendingEventID {
                     navigationPath.append(eventID)
                     deepLinkManager.pendingEventID = nil
                 }
@@ -237,7 +243,7 @@ struct ScheduleView: View {
         .buttonStyle(.plain)
         .disabled(isBulkActionLoading)
         .padding(.horizontal, 12)
-        .glassEffect(.regular.interactive(), in: .capsule)
+        .modifier(GlassCapsuleModifier())
     }
 
     // MARK: - Actions
@@ -280,6 +286,17 @@ struct ScheduleView: View {
             await dataService.fetchRoster(seasonId: season.id)
             await dataService.fetchAllAvailability(for: dataService.events.map(\.id))
             dataService.hasLoadedSchedule = true
+        }
+    }
+}
+
+/// Applies `.glassEffect` on iOS 26+, falls back to `.ultraThinMaterial` on older.
+private struct GlassCapsuleModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 26, *) {
+            content.glassEffect(.regular.interactive(), in: .capsule)
+        } else {
+            content.background(.ultraThinMaterial, in: .capsule)
         }
     }
 }

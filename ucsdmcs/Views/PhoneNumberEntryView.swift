@@ -22,10 +22,11 @@ struct PhoneNumberEntryView: View {
                 }
 
                 TextField("5551234567", text: $phoneNumber)
-                    .textFieldStyle(.roundedBorder)
                     .keyboardType(.numberPad)
                     .font(.title3)
                     .multilineTextAlignment(.center)
+                    .padding(12)
+                    .background(Color(.systemGray5), in: .rect(cornerRadius: 10))
                     .padding(.horizontal, 40)
                     .onChange(of: phoneNumber) { _, newValue in
                         phoneNumber = newValue.filter { $0.isNumber }
