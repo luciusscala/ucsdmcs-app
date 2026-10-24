@@ -15,11 +15,27 @@
 		15DA1C47305645560056C420 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 15DA1C46305645560056C420 /* Supabase */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		15B96477308D54B700951225 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 15DA1BD13051EE0D0056C420 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 15DA1BD83051EE0D0056C420;
+			remoteInfo = ucsdmcs;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		15B96473308D54B700951225 /* ucsdmcsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ucsdmcsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		15DA1BD93051EE0D0056C420 /* ucsdmcs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ucsdmcs.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		15B96474308D54B700951225 /* ucsdmcsTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ucsdmcsTests;
+			sourceTree = "<group>";
+		};
 		15DA1BDB3051EE0D0056C420 /* ucsdmcs */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = ucsdmcs;
@@ -28,6 +44,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		15B96470308D54B700951225 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		15DA1BD63051EE0D0056C420 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -48,6 +71,7 @@
 			isa = PBXGroup;
 			children = (
 				15DA1BDB3051EE0D0056C420 /* ucsdmcs */,
+				15B96474308D54B700951225 /* ucsdmcsTests */,
 				15DA1C3B305645550056C420 /* Frameworks */,
 				15DA1BDA3051EE0D0056C420 /* Products */,
 			);
@@ -57,6 +81,7 @@
 			isa = PBXGroup;
 			children = (
 				15DA1BD93051EE0D0056C420 /* ucsdmcs.app */,
+				15B96473308D54B700951225 /* ucsdmcsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -71,6 +96,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		15B96472308D54B700951225 /* ucsdmcsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 15B9647B308D54B700951225 /* Build configuration list for PBXNativeTarget "ucsdmcsTests" */;
+			buildPhases = (
+				15B9646F308D54B700951225 /* Sources */,
+				15B96470308D54B700951225 /* Frameworks */,
+				15B96471308D54B700951225 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				15B96478308D54B700951225 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				15B96474308D54B700951225 /* ucsdmcsTests */,
+			);
+			name = ucsdmcsTests;
+			packageProductDependencies = (
+			);
+			productName = ucsdmcsTests;
+			productReference = 15B96473308D54B700951225 /* ucsdmcsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		15DA1BD83051EE0D0056C420 /* ucsdmcs */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 15DA1BFA3051EE0F0056C420 /* Build configuration list for PBXNativeTarget "ucsdmcs" */;
@@ -109,6 +157,10 @@
 				LastSwiftUpdateCheck = 2640;
 				LastUpgradeCheck = 2640;
 				TargetAttributes = {
+					15B96472308D54B700951225 = {
+						CreatedOnToolsVersion = 26.4.1;
+						TestTargetID = 15DA1BD83051EE0D0056C420;
+					};
 					15DA1BD83051EE0D0056C420 = {
 						CreatedOnToolsVersion = 26.4.1;
 					};
@@ -132,11 +184,19 @@
 			projectRoot = "";
 			targets = (
 				15DA1BD83051EE0D0056C420 /* ucsdmcs */,
+				15B96472308D54B700951225 /* ucsdmcsTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		15B96471308D54B700951225 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		15DA1BD73051EE0D0056C420 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -147,6 +207,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		15B9646F308D54B700951225 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		15DA1BD53051EE0D0056C420 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -156,7 +223,57 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		15B96478308D54B700951225 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 15DA1BD83051EE0D0056C420 /* ucsdmcs */;
+			targetProxy = 15B96477308D54B700951225 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		15B96479308D54B700951225 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B455H374TA;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.ucsdmcsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ucsdmcs.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ucsdmcs";
+			};
+			name = Debug;
+		};
+		15B9647A308D54B700951225 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B455H374TA;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.ucsdmcsTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ucsdmcs.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/ucsdmcs";
+			};
+			name = Release;
+		};
 		15DA1BF83051EE0F0056C420 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -361,6 +478,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		15B9647B308D54B700951225 /* Build configuration list for PBXNativeTarget "ucsdmcsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				15B96479308D54B700951225 /* Debug */,
+				15B9647A308D54B700951225 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		15DA1BD43051EE0D0056C420 /* Build configuration list for PBXProject "ucsdmcs" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

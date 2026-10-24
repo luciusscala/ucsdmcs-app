@@ -23,6 +23,7 @@ ucsdmcs/
 ├── Components/   Reusable UI pieces
 └── Theme/        Shared colors and styles
 ```
+*note: in the codebase you may notice that the app is referred to as ucsdmcs; this is the original name of Fixture by SLLAB and is often used interchangeably throughout.*
 
 ## Backend
 
