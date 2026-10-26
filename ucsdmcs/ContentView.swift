@@ -45,6 +45,12 @@ struct ContentView: View {
         .animation(.easeInOut(duration: 0.3), value: savedTeamID)
         .animation(.easeInOut(duration: 0.3), value: savedRosterID)
         .animation(.easeInOut(duration: 0.3), value: phoneEntered)
+        .onAppear {
+            dataService.currentTeamId = UUID(uuidString: savedTeamID)
+        }
+        .onChange(of: savedTeamID) { _, newValue in
+            dataService.currentTeamId = UUID(uuidString: newValue)
+        }
     }
 
     private func personId(for rosterUUID: UUID) -> UUID {

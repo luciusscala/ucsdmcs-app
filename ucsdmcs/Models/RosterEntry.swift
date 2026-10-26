@@ -4,6 +4,7 @@ struct RosterEntry: Identifiable, Codable, Hashable {
     let id: UUID
     let personId: UUID
     let seasonId: UUID
+    let teamId: UUID
     let playerClass: String
     let position: String
     let number: Int?
@@ -23,6 +24,7 @@ struct RosterEntry: Identifiable, Codable, Hashable {
         case id, position, number, people
         case personId = "person_id"
         case seasonId = "season_id"
+        case teamId = "team_id"
         case playerClass = "class"
     }
 }

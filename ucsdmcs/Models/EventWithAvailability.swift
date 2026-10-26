@@ -47,7 +47,7 @@ struct EventWithAvailability: Identifiable {
 
     var opponentLogoURL: URL? {
         guard event.eventType == "game",
-              let logoPath = game?.teams?.logoPath else { return nil }
+              let logoPath = game?.opponent?.logoPath else { return nil }
         return SupabaseConfig.storageURL(for: logoPath)
     }
 

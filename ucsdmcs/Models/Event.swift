@@ -3,12 +3,14 @@ import Foundation
 struct Event: Identifiable, Codable, Hashable {
     let id: UUID
     let seasonId: UUID
+    let teamId: UUID
     let eventType: String
     let eventDate: Date
 
     enum CodingKeys: String, CodingKey {
         case id
         case seasonId = "season_id"
+        case teamId = "team_id"
         case eventType = "event_type"
         case eventDate = "event_date"
     }

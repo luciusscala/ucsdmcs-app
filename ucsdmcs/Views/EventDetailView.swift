@@ -114,7 +114,7 @@ struct EventDetailView: View {
             // Game: show opponent with logo
             if event.eventType == "game", let game = dataService.games[event.id] {
                 HStack(spacing: 10) {
-                    if let logoPath = game.teams?.logoPath,
+                    if let logoPath = game.opponent?.logoPath,
                        let logoURL = SupabaseConfig.storageURL(for: logoPath) {
                         AsyncImage(url: logoURL) { image in
                             image.resizable().scaledToFit()

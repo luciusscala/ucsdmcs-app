@@ -21,6 +21,8 @@ final class DataService {
     var allSeasonAvailability: [UUID: [Availability]] = [:]
     var hasLoadedDashboard = false
 
+    var currentTeamId: UUID?
+
     var isLoading = false
     var hasLoadedSchedule = false
     var errorMessage: String?
@@ -118,10 +120,14 @@ final class DataService {
 
     func fetchRoster(seasonId: UUID) async {
         do {
-            roster = try await supabase
+            var query = supabase
                 .from("roster")
                 .select("*, people(*)")
                 .eq("season_id", value: seasonId.uuidString)
+            if let teamId = currentTeamId {
+                query = query.eq("team_id", value: teamId.uuidString)
+            }
+            roster = try await query
                 .execute()
                 .value
 
@@ -147,11 +153,15 @@ final class DataService {
 
         do {
             let now = ISO8601DateFormatter().string(from: Date())
-            events = try await supabase
+            var query = supabase
                 .from("events")
                 .select()
                 .eq("season_id", value: seasonId.uuidString)
                 .gte("event_date", value: now)
+            if let teamId = currentTeamId {
+                query = query.eq("team_id", value: teamId.uuidString)
+            }
+            events = try await query
                 .order("event_date")
                 .execute()
                 .value
@@ -184,12 +194,17 @@ final class DataService {
             case "game":
                 let response = try await supabase
                     .from("games")
-                    .select("*, fields(*), teams!games_opponent_id_fkey(*)")
+                    .select("*, fields(*), home_team:teams!home_team_id(*), away_team:teams!away_team_id(*)")
                     .eq("event_id", value: event.id.uuidString)
                     .execute()
                 let decoder = JSONDecoder()
                 decoder.dateDecodingStrategy = .iso8601
-                let results: [Game] = try decoder.decode([Game].self, from: response.data)
+                var results: [Game] = try decoder.decode([Game].self, from: response.data)
+                if let teamId = currentTeamId {
+                    for i in results.indices {
+                        results[i].myTeamId = teamId
+                    }
+                }
                 if let game = results.first {
                     games[event.id] = game
                 }
@@ -350,11 +365,14 @@ final class DataService {
 
     func createPractice(seasonId: UUID, date: Date, fieldId: UUID, notes: String?) async {
         do {
-            let eventPayload: [String: String] = [
+            var eventPayload: [String: String] = [
                 "season_id": seasonId.uuidString,
                 "event_type": "practice",
                 "event_date": ISO8601DateFormatter().string(from: date)
             ]
+            if let teamId = currentTeamId {
+                eventPayload["team_id"] = teamId.uuidString
+            }
             let eventResult: [Event] = try await supabase
                 .from("events")
                 .insert(eventPayload)
@@ -409,11 +427,14 @@ final class DataService {
 
     func createGame(seasonId: UUID, date: Date, opponentId: UUID, fieldId: UUID, isHome: Bool) async {
         do {
-            let eventPayload: [String: String] = [
+            var eventPayload: [String: String] = [
                 "season_id": seasonId.uuidString,
                 "event_type": "game",
                 "event_date": ISO8601DateFormatter().string(from: date)
             ]
+            if let teamId = currentTeamId {
+                eventPayload["team_id"] = teamId.uuidString
+            }
             let eventResult: [Event] = try await supabase
                 .from("events")
                 .insert(eventPayload)
@@ -423,11 +444,15 @@ final class DataService {
 
             guard let newEvent = eventResult.first else { return }
 
+            let homeId = isHome ? (currentTeamId ?? UUID()) : opponentId
+            let awayId = isHome ? opponentId : (currentTeamId ?? UUID())
+
             let gamePayload: [String: AnyJSON] = [
                 "event_id": .string(newEvent.id.uuidString),
-                "opponent_id": .string(opponentId.uuidString),
+                "home_team_id": .string(homeId.uuidString),
+                "away_team_id": .string(awayId.uuidString),
                 "field_id": .string(fieldId.uuidString),
-                "is_home": .bool(isHome)
+                "is_neutral": .bool(false)
             ]
             try await supabase
                 .from("games")
@@ -480,10 +505,14 @@ final class DataService {
                 .eq("id", value: eventId.uuidString)
                 .execute()
 
+            let homeId = isHome ? (currentTeamId ?? UUID()) : opponentId
+            let awayId = isHome ? opponentId : (currentTeamId ?? UUID())
+
             let gameUpdate: [String: AnyJSON] = [
-                "opponent_id": .string(opponentId.uuidString),
+                "home_team_id": .string(homeId.uuidString),
+                "away_team_id": .string(awayId.uuidString),
                 "field_id": .string(fieldId.uuidString),
-                "is_home": .bool(isHome)
+                "is_neutral": .bool(false)
             ]
             try await supabase
                 .from("games")
@@ -590,11 +619,15 @@ final class DataService {
             let endOfToday = Calendar.current.startOfDay(for: Date()).addingTimeInterval(86400)
             let cutoff = ISO8601DateFormatter().string(from: endOfToday)
 
-            allSeasonEvents = try await supabase
+            var query = supabase
                 .from("events")
                 .select()
                 .eq("season_id", value: seasonId.uuidString)
                 .lte("event_date", value: cutoff)
+            if let teamId = currentTeamId {
+                query = query.eq("team_id", value: teamId.uuidString)
+            }
+            allSeasonEvents = try await query
                 .order("event_date")
                 .execute()
                 .value
