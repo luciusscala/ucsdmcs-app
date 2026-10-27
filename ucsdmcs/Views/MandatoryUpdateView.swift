@@ -10,10 +10,6 @@ struct MandatoryUpdateView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            Image(systemName: "arrow.down.app.fill")
-                .font(.system(size: 64))
-                .foregroundStyle(AppTheme.buttonBlue)
-
             VStack(spacing: 8) {
                 Text("Update Required")
                     .font(.largeTitle.weight(.bold))
