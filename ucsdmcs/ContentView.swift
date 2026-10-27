@@ -5,10 +5,14 @@ struct ContentView: View {
     @AppStorage("rosterID") private var savedRosterID: String = ""
     @AppStorage("phoneEntered") private var phoneEntered: String = ""
     @Environment(DataService.self) private var dataService
+    @Environment(UpdateChecker.self) private var updateChecker
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         Group {
-            if savedTeamID.isEmpty {
+            if updateChecker.updateRequired {
+                MandatoryUpdateView()
+            } else if savedTeamID.isEmpty {
                 TeamSelectionView()
             } else if savedRosterID.isEmpty {
                 RosterSelectionView()
@@ -45,6 +49,14 @@ struct ContentView: View {
         .animation(.easeInOut(duration: 0.3), value: savedTeamID)
         .animation(.easeInOut(duration: 0.3), value: savedRosterID)
         .animation(.easeInOut(duration: 0.3), value: phoneEntered)
+        .task {
+            await updateChecker.check()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                Task { await updateChecker.check() }
+            }
+        }
         .onAppear {
             dataService.currentTeamId = UUID(uuidString: savedTeamID)
         }
